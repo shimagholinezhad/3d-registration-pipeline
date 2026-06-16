@@ -1,4 +1,4 @@
-# Example 3D femur registration pipeline
+# 3D femur registration pipeline
 
 This repository contains a minimal example version of the 3D femur surface-registration
 pipeline used for the manuscript. It is limited to the functions needed to run one
