@@ -1,34 +1,6 @@
-# 3D femur registration pipeline
-
-This repository contains a minimal example version of the 3D femur surface-registration
-pipeline used for the manuscript. It is limited to the functions needed to run one
-example specimen and does not include the full internal research-code library.
+## Input data
 
 The pipeline uses four STL surface models from the same specimen:
-
-```text
-sample_data/pre_left.stl
-sample_data/post_left.stl
-sample_data/pre_right.stl
-sample_data/post_right.stl
-```
-
-The user chooses which baseline side is the reference with `--reference-side L` or
-`--reference-side R`.
-
-## What the pipeline does
-
-1. Loads the STL meshes with trimesh processing enabled.
-2. Aligns meshes to principal inertia axes.
-3. Uses `femur_orientation_vector.json` to orient proximal/distal ends consistently.
-4. Mirrors left-sided meshes into a common right-sided coordinate convention.
-5. Registers all four models to the chosen Pre reference model.
-6. Separately registers proximal and distal femoral regions.
-7. Writes distal volume ratio and angular change outputs.
-
-## Input files
-
-Put the four STL files in `sample_data/` with these exact names:
 
 ```text
 pre_left.stl
@@ -37,39 +9,57 @@ pre_right.stl
 post_right.stl
 ```
 
-The folder should also contain:
+The STL surface models are not included in this repository. To run the pipeline, place the four user-provided STL files in the `input_data/` folder using the filenames shown above.
+
+The proximal/distal orientation vector required by the pipeline is included as:
 
 ```text
-femur_orientation_vector.json
+config/femur_orientation_vector.json
 ```
 
-## Run in Spyder
-
-Open `run_in_spyder.py`, set:
-
-```python
-REFERENCE_SIDE = "L"  # or "R"
-```
-
-Then press Run.
-
-The results are written to:
+The user specifies which baseline side is used as the reference model with either:
 
 ```text
-results/example/
+--reference-side L
 ```
 
-## Run from terminal
+or:
+
+```text
+--reference-side R
+```
+
+## What the pipeline does
+
+The pipeline performs the following steps:
+
+1. Loads the four STL meshes using `trimesh` processing.
+2. Aligns each mesh to its principal inertia axes.
+3. Uses `config/femur_orientation_vector.json` to orient the proximal and distal femoral ends consistently.
+4. Mirrors left-sided meshes into a common right-sided coordinate convention.
+5. Registers all four models to the selected Pre reference model.
+6. Separately registers proximal and distal femoral regions.
+7. Calculates distal femoral volume ratio and angular change.
+8. Writes the aligned meshes, split femoral regions, and summary output tables.
+
+## Running the example pipeline
+
+After placing the four STL files in `input_data/`, run:
 
 ```bash
-python run_sample_pipeline.py   --sample-id example   --input-dir sample_data   --output-dir results/example   --reference-side L   --orientation-vector sample_data/femur_orientation_vector.json
+python run_sample_pipeline.py \
+  --sample-id example \
+  --input-dir input_data \
+  --output-dir results/example \
+  --reference-side L \
+  --orientation-vector femur_orientation_vector.json
 ```
 
-Use `--reference-side R` instead if the right Pre model is the reference.
+Change `--reference-side L` to `--reference-side R` if the right femur is the baseline non-operated reference side.
 
 ## Output files
 
-The main output files are:
+The main output files are written to:
 
 ```text
 results/example/aligned_obj/
@@ -79,27 +69,4 @@ results/example/tables/core_3d_summary.csv
 results/example/tables/run_settings.json
 ```
 
-`core_3d_summary.csv` contains:
-
-```text
-Sample, Side, Reference_side, dist_size, Volume_Ratio, X_Delta, Y_Delta, Z_Delta
-```
-
-## Mesh notes
-
-Closed surfaces are required for volume, centre-of-mass, inertia, and moment
-calculations. The script uses trimesh processing during loading, matching the
-workflow used in the analysis. If a raw STL is not watertight but trimesh closes
-it during loading, the script prints a note and continues. If the processed mesh
-is still not watertight, the STL should be repaired or re-exported as a closed
-surface before analysis.
-
-## Python requirements
-
-Install the required packages with:
-
-```bash
-pip install -r requirements.txt
-```
-
-The minimal required packages are listed in `requirements.txt`.
+The file `core_3d_summary.csv` contains the main calculated outputs, including distal femoral volume ratio and angular change components.
