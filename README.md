@@ -14,7 +14,7 @@ The STL surface models are not included in this repository. To run the pipeline,
 The proximal/distal orientation vector required by the pipeline is included as:
 
 ```text
-config/femur_orientation_vector.json
+--femur_orientation_vector.json
 ```
 
 The user specifies which baseline side is used as the reference model with either:
